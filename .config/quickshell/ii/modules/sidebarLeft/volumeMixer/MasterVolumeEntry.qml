@@ -30,13 +30,32 @@ Item {
         anchors.fill: parent
         spacing: 6
 
-        MaterialSymbol {
+
+        Item {
+            id: iconWrapper
             Layout.preferredWidth: slider.height * 0.9
-            // ... (rest of the icon is the same)
-            text: "volume_up"
-            color: Appearance.colors.colSubtext
-            font.pixelSize: 24
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            MaterialSymbol {
+                
+                // ... (rest of the icon is the same)
+                text: (Pipewire.defaultAudioSink && Pipewire.defaultAudioSink.audio.mute) ?"volume_off" : "volume_up"
+                
+                color: Appearance.colors.colSubtext
+                font.pixelSize: 24
+            }
+            
+            MouseArea {
+                anchors.fill: parent 
+                cursorShape: Qt.PointingHandCursor 
+                onClicked: {
+                    if (Pipewire.defaultAudioSink) {
+                        Pipewire.defaultAudioSink.audio.mute = !Pipewire.defaultAudioSink.audio.mute
+                    }
+                }
+            }
         }
+
+
 
         ColumnLayout {
             Layout.fillWidth: true

@@ -55,6 +55,7 @@ Item {
             implicitHeight: 1
             color: Appearance.m3colors.m3outline
         }
+        
         anchors.fill: parent
         Item {
             Layout.fillWidth: true

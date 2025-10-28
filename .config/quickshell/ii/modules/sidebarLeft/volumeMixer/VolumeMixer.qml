@@ -36,6 +36,25 @@ Item {
     }
 
     ColumnLayout {
+
+
+        MasterVolumeEntry {
+            Layout.fillWidth: true
+            Layout.topMargin: 10
+            Layout.leftMargin: 10
+            Layout.rightMargin: 10
+        }
+
+        // Step 2: Add the visual separator
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.topMargin: 10
+            Layout.leftMargin: 10
+            Layout.rightMargin: 10
+            Layout.bottomMargin: 4
+            implicitHeight: 1
+            color: Appearance.m3colors.m3outline
+        }
         anchors.fill: parent
         Item {
             Layout.fillWidth: true

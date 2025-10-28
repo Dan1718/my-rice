@@ -223,30 +223,4 @@ Rectangle {
         }
     }
 
-    // Calendar component
-    Component {
-        id: calendarWidget
-
-        CalendarWidget {
-            anchors.centerIn: parent
-        }
-    }
-
-    // To Do component
-    Component {
-        id: todoWidget
-        TodoWidget {
-            anchors.fill: parent
-            anchors.margins: 5
-        }
-    }
-
-    // Pomodoro component
-    Component {
-        id: pomodoroWidget
-        PomodoroWidget {
-            anchors.fill: parent
-            anchors.margins: 5
-        }
-    }
 }

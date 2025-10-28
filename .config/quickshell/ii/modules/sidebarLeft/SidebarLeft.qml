@@ -172,10 +172,8 @@ Scope {
                             NetworkToggle {}
                             BluetoothToggle {}
                             NightLight {}
-                            GameMode {}
+
                             IdleInhibitor {}
-                            EasyEffectsToggle {}
-                            CloudflareWarp {}
                         }
 
                         // Center widget group
@@ -185,13 +183,14 @@ Scope {
                             Layout.fillHeight: true
                             Layout.fillWidth: true
                         }
-
+/*
                         BottomWidgetGroup {
                             Layout.alignment: Qt.AlignHCenter
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.preferredHeight: implicitHeight
                         }
+                        */
                     }
                 }
             }

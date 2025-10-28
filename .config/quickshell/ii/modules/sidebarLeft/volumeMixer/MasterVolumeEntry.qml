@@ -54,12 +54,10 @@ Item {
                 onMoved: {
                     if (Pipewire.defaultAudioSink) {
                         Pipewire.defaultAudioSink.audio.volume = value
-                        // --- DEBUGGING 3: See the value as you move the slider ---
                     }
                 }
             }
 
-            // --- DEBUGGING 4: Display the value directly in the UI ---
 
         }
     }

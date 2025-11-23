@@ -5,7 +5,14 @@ function fish_prompt -d "Write out the prompt"
     printf '%s@%s %s%s%s > ' $USER $hostname \
         (set_color $fish_color_cwd) (prompt_pwd) (set_color normal)
 end
-
+function y
+	set tmp (mktemp -t "yazi-cwd.XXXXXX")
+	yazi $argv --cwd-file="$tmp"
+	if read -z cwd < "$tmp"; and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
+		builtin cd -- "$cwd"
+	end
+	rm -f -- "$tmp"
+end
 if status is-interactive # Commands to run in interactive sessions can go here
 
     # No greeting
@@ -13,9 +20,7 @@ if status is-interactive # Commands to run in interactive sessions can go here
 
     # Use starship
     starship init fish | source
-    if test -f ~/.local/state/quickshell/user/generated/terminal/sequences.txt
-        cat ~/.local/state/quickshell/user/generated/terminal/sequences.txt
-    end
+
 
     # Aliases
     alias pamcan pacman
@@ -24,3 +29,9 @@ if status is-interactive # Commands to run in interactive sessions can go here
     alias q 'qs -c ii'
     
 end
+
+if test -f ~/.local/state/quickshell/user/generated/terminal/sequences.txt
+	cat ~/.local/state/quickshell/user/generated/terminal/sequences.txt
+end
+
+

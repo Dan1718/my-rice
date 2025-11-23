@@ -1,7 +1,7 @@
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
-import "./notifications"
+import "./network"
 import "./volumeMixer"
 import qs
 import Qt5Compat.GraphicalEffects
@@ -75,6 +75,7 @@ Rectangle {
 
             //NotificationList {}
             VolumeMixer {}
+//	    Network {}
         }
     }
 }

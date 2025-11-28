@@ -35,3 +35,7 @@ if test -f ~/.local/state/quickshell/user/generated/terminal/sequences.txt
 end
 
 
+function mkcd
+    mkdir -p $argv
+    cd $argv
+end

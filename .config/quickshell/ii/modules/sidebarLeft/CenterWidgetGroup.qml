@@ -1,7 +1,7 @@
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
-import "./network"
+import "./wifi"
 import "./volumeMixer"
 import qs
 import Qt5Compat.GraphicalEffects
@@ -15,7 +15,7 @@ Rectangle {
     color: Appearance.colors.colLayer1
 
     property int selectedTab: 0
-    property var tabButtonList: [{"icon": "volume_up", "name": Translation.tr("Audio")},{"icon": "wifi", "name": Translation.tr("Networks")}]
+    property var tabButtonList: [{"icon": "volume_up", "name": Translation.tr("Audio")},{"icon": "wifi", "name": Translation.tr("Wi-Fi")},{"icon":"bluetooth","name":Translation.tr("Bluetooth")}]
 
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_PageDown || event.key === Qt.Key_PageUp) {
@@ -75,7 +75,7 @@ Rectangle {
 
             //NotificationList {}
             VolumeMixer {}
-//	    Network {}
+//	    WifiPanel {}
         }
     }
 }

@@ -57,3 +57,8 @@ else
 fi
 unset __mamba_setup
 # <<< mamba initialize <<<
+. "$HOME/.cargo/env"
+
+export PATH="$PATH:/home/dan/.foundry/bin"
+
+export PATH="$PATH:/home/dan/.foundry/bin"

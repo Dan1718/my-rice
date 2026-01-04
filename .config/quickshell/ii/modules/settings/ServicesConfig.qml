@@ -1,55 +1,17 @@
 import QtQuick
 import QtQuick.Layouts
-import qs
 import qs.services
 import qs.modules.common
-import qs.modules.common.functions
 import qs.modules.common.widgets
-import Quickshell
 
 ContentPage {
     forceWidth: true
 
     ContentSection {
-        title: Translation.tr("Audio")
-
-        ConfigSwitch {
-            text: Translation.tr("Earbang protection")
-            checked: Config.options.audio.protection.enable
-            onCheckedChanged: {
-                Config.options.audio.protection.enable = checked;
-            }
-            StyledToolTip {
-                content: Translation.tr("Prevents abrupt increments and restricts volume limit")
-            }
-        }
-        ConfigRow {
-            // uniform: true
-            ConfigSpinBox {
-                text: Translation.tr("Max allowed increase")
-                value: Config.options.audio.protection.maxAllowedIncrease
-                from: 0
-                to: 100
-                stepSize: 2
-                onValueChanged: {
-                    Config.options.audio.protection.maxAllowedIncrease = value;
-                }
-            }
-            ConfigSpinBox {
-                text: Translation.tr("Volume limit")
-                value: Config.options.audio.protection.maxAllowed
-                from: 0
-                to: 100
-                stepSize: 2
-                onValueChanged: {
-                    Config.options.audio.protection.maxAllowed = value;
-                }
-            }
-        }
-    }
-    ContentSection {
+        icon: "neurology"
         title: Translation.tr("AI")
-        MaterialTextField {
+
+        MaterialTextArea {
             Layout.fillWidth: true
             placeholderText: Translation.tr("System prompt")
             text: Config.options.ai.systemPrompt
@@ -63,59 +25,38 @@ ContentPage {
     }
 
     ContentSection {
-        title: Translation.tr("Battery")
+        icon: "music_cast"
+        title: Translation.tr("Music Recognition")
 
-        ConfigRow {
-            uniform: true
-            ConfigSpinBox {
-                text: Translation.tr("Low warning")
-                value: Config.options.battery.low
-                from: 0
-                to: 100
-                stepSize: 5
-                onValueChanged: {
-                    Config.options.battery.low = value;
-                }
-            }
-            ConfigSpinBox {
-                text: Translation.tr("Critical warning")
-                value: Config.options.battery.critical
-                from: 0
-                to: 100
-                stepSize: 5
-                onValueChanged: {
-                    Config.options.battery.critical = value;
-                }
+        ConfigSpinBox {
+            icon: "timer_off"
+            text: Translation.tr("Total duration timeout (s)")
+            value: Config.options.musicRecognition.timeout
+            from: 10
+            to: 100
+            stepSize: 2
+            onValueChanged: {
+                Config.options.musicRecognition.timeout = value;
             }
         }
-        ConfigRow {
-            uniform: true
-            ConfigSwitch {
-                text: Translation.tr("Automatic suspend")
-                checked: Config.options.battery.automaticSuspend
-                onCheckedChanged: {
-                    Config.options.battery.automaticSuspend = checked;
-                }
-                StyledToolTip {
-                    content: Translation.tr("Automatically suspends the system when battery is low")
-                }
-            }
-            ConfigSpinBox {
-                text: Translation.tr("Suspend at")
-                value: Config.options.battery.suspend
-                from: 0
-                to: 100
-                stepSize: 5
-                onValueChanged: {
-                    Config.options.battery.suspend = value;
-                }
+        ConfigSpinBox {
+            icon: "av_timer"
+            text: Translation.tr("Polling interval (s)")
+            value: Config.options.musicRecognition.interval
+            from: 2
+            to: 10
+            stepSize: 1
+            onValueChanged: {
+                Config.options.musicRecognition.interval = value;
             }
         }
     }
 
     ContentSection {
+        icon: "cell_tower"
         title: Translation.tr("Networking")
-        MaterialTextField {
+
+        MaterialTextArea {
             Layout.fillWidth: true
             placeholderText: Translation.tr("User agent (for services that require it)")
             text: Config.options.networking.userAgent
@@ -127,8 +68,11 @@ ContentPage {
     }
 
     ContentSection {
+        icon: "memory"
         title: Translation.tr("Resources")
+
         ConfigSpinBox {
+            icon: "av_timer"
             text: Translation.tr("Polling interval (ms)")
             value: Config.options.resources.updateInterval
             from: 100
@@ -138,9 +82,36 @@ ContentPage {
                 Config.options.resources.updateInterval = value;
             }
         }
+        
     }
 
     ContentSection {
+        icon: "file_open"
+        title: Translation.tr("Save paths")
+
+        MaterialTextArea {
+            Layout.fillWidth: true
+            placeholderText: Translation.tr("Video Recording Path")
+            text: Config.options.screenRecord.savePath
+            wrapMode: TextEdit.Wrap
+            onTextChanged: {
+                Config.options.screenRecord.savePath = text;
+            }
+        }
+        
+        MaterialTextArea {
+            Layout.fillWidth: true
+            placeholderText: Translation.tr("Screenshot Path (leave empty to just copy)")
+            text: Config.options.screenSnip.savePath
+            wrapMode: TextEdit.Wrap
+            onTextChanged: {
+                Config.options.screenSnip.savePath = text;
+            }
+        }
+    }
+
+    ContentSection {
+        icon: "search"
         title: Translation.tr("Search")
 
         ConfigSwitch {
@@ -150,7 +121,7 @@ ContentPage {
                 Config.options.search.sloppy = checked;
             }
             StyledToolTip {
-                content: Translation.tr("Could be better if you make a ton of typos,\nbut results can be weird and might not work with acronyms\n(e.g. \"GIMP\" might not give you the paint program)")
+                text: Translation.tr("Could be better if you make a ton of typos,\nbut results can be weird and might not work with acronyms\n(e.g. \"GIMP\" might not give you the paint program)")
             }
         }
 
@@ -158,8 +129,7 @@ ContentPage {
             title: Translation.tr("Prefixes")
             ConfigRow {
                 uniform: true
-
-                MaterialTextField {
+                MaterialTextArea {
                     Layout.fillWidth: true
                     placeholderText: Translation.tr("Action")
                     text: Config.options.search.prefix.action
@@ -168,7 +138,7 @@ ContentPage {
                         Config.options.search.prefix.action = text;
                     }
                 }
-                MaterialTextField {
+                MaterialTextArea {
                     Layout.fillWidth: true
                     placeholderText: Translation.tr("Clipboard")
                     text: Config.options.search.prefix.clipboard
@@ -177,7 +147,7 @@ ContentPage {
                         Config.options.search.prefix.clipboard = text;
                     }
                 }
-                MaterialTextField {
+                MaterialTextArea {
                     Layout.fillWidth: true
                     placeholderText: Translation.tr("Emojis")
                     text: Config.options.search.prefix.emojis
@@ -187,10 +157,41 @@ ContentPage {
                     }
                 }
             }
+
+            ConfigRow {
+                uniform: true
+                MaterialTextArea {
+                    Layout.fillWidth: true
+                    placeholderText: Translation.tr("Math")
+                    text: Config.options.search.prefix.math
+                    wrapMode: TextEdit.Wrap
+                    onTextChanged: {
+                        Config.options.search.prefix.math = text;
+                    }
+                }
+                MaterialTextArea {
+                    Layout.fillWidth: true
+                    placeholderText: Translation.tr("Shell command")
+                    text: Config.options.search.prefix.shellCommand
+                    wrapMode: TextEdit.Wrap
+                    onTextChanged: {
+                        Config.options.search.prefix.shellCommand = text;
+                    }
+                }
+                MaterialTextArea {
+                    Layout.fillWidth: true
+                    placeholderText: Translation.tr("Web search")
+                    text: Config.options.search.prefix.webSearch
+                    wrapMode: TextEdit.Wrap
+                    onTextChanged: {
+                        Config.options.search.prefix.webSearch = text;
+                    }
+                }
+            }
         }
         ContentSubsection {
             title: Translation.tr("Web search")
-            MaterialTextField {
+            MaterialTextArea {
                 Layout.fillWidth: true
                 placeholderText: Translation.tr("Base URL")
                 text: Config.options.search.engineBaseUrl
@@ -203,39 +204,48 @@ ContentPage {
     }
 
     ContentSection {
-        title: Translation.tr("Time")
-
-        ContentSubsection {
-            title: Translation.tr("Format")
-            tooltip: ""
-
-            ConfigSelectionArray {
-                currentValue: Config.options.time.format
-                configOptionName: "time.format"
-                onSelected: newValue => {
-                    if (newValue === "hh:mm") {
-                        Quickshell.execDetached(["bash", "-c", `sed -i 's/\\TIME12\\b/TIME/' '${FileUtils.trimFileProtocol(Directories.config)}/hypr/hyprlock.conf'`]);
-                    } else {
-                        Quickshell.execDetached(["bash", "-c", `sed -i 's/\\TIME\\b/TIME12/' '${FileUtils.trimFileProtocol(Directories.config)}/hypr/hyprlock.conf'`]);
-                    }
-
-                    Config.options.time.format = newValue;
-                    
+        icon: "weather_mix"
+        title: Translation.tr("Weather")
+        ConfigRow {
+            ConfigSwitch {
+                buttonIcon: "assistant_navigation"
+                text: Translation.tr("Enable GPS based location")
+                checked: Config.options.bar.weather.enableGPS
+                onCheckedChanged: {
+                    Config.options.bar.weather.enableGPS = checked;
                 }
-                options: [
-                    {
-                        displayName: Translation.tr("24h"),
-                        value: "hh:mm"
-                    },
-                    {
-                        displayName: Translation.tr("12h am/pm"),
-                        value: "h:mm ap"
-                    },
-                    {
-                        displayName: Translation.tr("12h AM/PM"),
-                        value: "h:mm AP"
-                    },
-                ]
+            }
+            ConfigSwitch {
+                buttonIcon: "thermometer"
+                text: Translation.tr("Fahrenheit unit")
+                checked: Config.options.bar.weather.useUSCS
+                onCheckedChanged: {
+                    Config.options.bar.weather.useUSCS = checked;
+                }
+                StyledToolTip {
+                    text: Translation.tr("It may take a few seconds to update")
+                }
+            }
+        }
+        
+        MaterialTextArea {
+            Layout.fillWidth: true
+            placeholderText: Translation.tr("City name")
+            text: Config.options.bar.weather.city
+            wrapMode: TextEdit.Wrap
+            onTextChanged: {
+                Config.options.bar.weather.city = text;
+            }
+        }
+        ConfigSpinBox {
+            icon: "av_timer"
+            text: Translation.tr("Polling interval (m)")
+            value: Config.options.bar.weather.fetchInterval
+            from: 5
+            to: 50
+            stepSize: 5
+            onValueChanged: {
+                Config.options.bar.weather.fetchInterval = value;
             }
         }
     }

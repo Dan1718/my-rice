@@ -2,7 +2,7 @@ pragma Singleton
 pragma ComponentBehavior: Bound
 
 import qs.modules.common
-import qs
+import qs.services
 import Quickshell;
 import QtQuick;
 
@@ -14,6 +14,7 @@ Singleton {
     property Component booruResponseDataComponent: BooruResponseData {}
 
     signal tagSuggestion(string query, var suggestions)
+    signal responseFinished()
 
     property string failMessage: Translation.tr("That didn't work. Tips:\n- Check your tags and NSFW settings\n- If you don't have a tag in mind, type a page number")
     property var responses: []
@@ -46,7 +47,7 @@ Singleton {
                     }
                 })
             },
-            "tagSearchTemplate": "https://yande.re/tag.json?order=count&name={{query}}*",
+            "tagSearchTemplate": "https://yande.re/tag.json?order=count&limit=10&name={{query}}*",
             "tagMapFunc": (response) => {
                 return response.map(item => {
                     return {
@@ -80,7 +81,7 @@ Singleton {
                     }
                 })
             },
-            "tagSearchTemplate": "https://konachan.net/tag.json?order=count&name={{query}}*",
+            "tagSearchTemplate": "https://konachan.net/tag.json?order=count&limit=10&name={{query}}*",
             "tagMapFunc": (response) => {
                 return response.map(item => {
                     return {
@@ -141,7 +142,7 @@ Singleton {
                     }
                 })
             },
-            "tagSearchTemplate": "https://danbooru.donmai.us/tags.json?search[name_matches]={{query}}*",
+            "tagSearchTemplate": "https://danbooru.donmai.us/tags.json?limit=10&search[name_matches]={{query}}*",
             "tagMapFunc": (response) => {
                 return response.map(item => {
                     return {
@@ -150,7 +151,6 @@ Singleton {
                     }
                 })
             }
-
         },
         "gelbooru": {
             "name": "Gelbooru",
@@ -177,7 +177,7 @@ Singleton {
                     }
                 })
             },
-            "tagSearchTemplate": "https://gelbooru.com/index.php?page=dapi&s=tag&q=index&json=1&orderby=count&name_pattern={{query}}%",
+            "tagSearchTemplate": "https://gelbooru.com/index.php?page=dapi&s=tag&q=index&json=1&orderby=count&limit=10&name_pattern={{query}}%",
             "tagMapFunc": (response) => {
                 return response.tag.map(item => {
                     return {
@@ -258,7 +258,7 @@ Singleton {
                         // Alcy doesn't provide dimensions and images are often of god resolution
                         "width": 1000,
                         "height": 1000,
-                        "aspect_ratio": 1, // Default aspect ratio
+                        "aspect_ratio": 1,
                         "tags": "[no tags]",
                         "rating": "s",
                         "is_nsfw": false,
@@ -398,7 +398,11 @@ Singleton {
             }
             else if (xhr.readyState === XMLHttpRequest.DONE) {
                 console.log("[Booru] Request failed with status: " + xhr.status)
+                newResponse.message = root.failMessage
+                root.runningRequests--;
+                root.responses = [...root.responses, newResponse]
             }
+            root.responseFinished()
         }
 
         try {

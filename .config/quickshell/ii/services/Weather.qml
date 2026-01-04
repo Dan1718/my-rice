@@ -16,6 +16,13 @@ Singleton {
     readonly property bool useUSCS: Config.options.bar.weather.useUSCS
     property bool gpsActive: Config.options.bar.weather.enableGPS
 
+    onUseUSCSChanged: {
+        root.getData();
+    }
+    onCityChanged: {
+        root.getData();
+    }
+
     property var location: ({
         valid: false,
         lat: 0,
@@ -34,7 +41,8 @@ Singleton {
         precip: 0,
         visib: 0,
         press: 0,
-        temp: 0
+        temp: 0,
+        tempFeelsLike: 0
     })
 
     function refineData(data) {
@@ -47,22 +55,25 @@ Singleton {
         temp.wCode = data?.current?.weatherCode || "113";
         temp.city = data?.location?.areaName[0]?.value || "City";
         temp.temp = "";
+        temp.tempFeelsLike = "";
         if (root.useUSCS) {
             temp.wind = (data?.current?.windspeedMiles || 0) + " mph";
             temp.precip = (data?.current?.precipInches || 0) + " in";
             temp.visib = (data?.current?.visibilityMiles || 0) + " m";
             temp.press = (data?.current?.pressureInches || 0) + " psi";
             temp.temp += (data?.current?.temp_F || 0);
-            temp.temp += " (" + (data?.current?.FeelsLikeF || 0) + ") ";
-            temp.temp += "\u{02109}";
+            temp.tempFeelsLike += (data?.current?.FeelsLikeF || 0);
+            temp.temp += "°F";
+            temp.tempFeelsLike += "°F";
         } else {
             temp.wind = (data?.current?.windspeedKmph || 0) + " km/h";
             temp.precip = (data?.current?.precipMM || 0) + " mm";
             temp.visib = (data?.current?.visibility || 0) + " km";
             temp.press = (data?.current?.pressure || 0) + " hPa";
             temp.temp += (data?.current?.temp_C || 0);
-            temp.temp += " (" + (data?.current?.FeelsLikeC || 0) + ") ";
-            temp.temp += "\u{02103}";
+            temp.tempFeelsLike += (data?.current?.FeelsLikeC || 0);
+            temp.temp += "°C";
+            temp.tempFeelsLike += "°C";
         }
         root.data = temp;
     }

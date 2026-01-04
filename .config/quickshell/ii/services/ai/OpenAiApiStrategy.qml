@@ -8,7 +8,7 @@ ApiStrategy {
         return model.endpoint;
     }
 
-    function buildRequestData(model: AiModel, messages, systemPrompt: string, temperature: real, tools: list<var>) {
+    function buildRequestData(model: AiModel, messages, systemPrompt: string, temperature: real, tools: list<var>, filePath: string) {
         let baseData = {
             "model": model.model,
             "messages": [
@@ -49,8 +49,17 @@ ApiStrategy {
         // Real stuff
         try {
             const dataJson = JSON.parse(cleanData);
+
+            // Error response handling
+            if (dataJson.error) {
+                const errorMsg = `**Error**: ${dataJson.error.message || JSON.stringify(dataJson.error)}`;
+                message.rawContent += errorMsg;
+                message.content += errorMsg;
+                return { finished: true };
+            }
+
             let newContent = "";
-            
+
             const responseContent = dataJson.choices[0]?.delta?.content || dataJson.message?.content;
             const responseReasoning = dataJson.choices[0]?.delta?.reasoning || dataJson.choices[0]?.delta?.reasoning_content;
 

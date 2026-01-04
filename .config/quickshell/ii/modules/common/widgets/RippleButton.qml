@@ -12,6 +12,7 @@ Button {
     id: root
     property bool toggled
     property string buttonText
+    property bool pointingHandCursor: true
     property real buttonRadius: Appearance?.rounding?.small ?? 4
     property real buttonRadiusPressed: buttonRadius
     property real buttonEffectiveRadius: root.down ? root.buttonRadiusPressed : root.buttonRadius
@@ -22,8 +23,6 @@ Button {
     property var altAction // When right clicking
     property var middleClickAction // When middle clicking
 
-
-
     property color colBackground: ColorUtils.transparentize(Appearance?.colors.colLayer1Hover, 1) || "transparent"
     property color colBackgroundHover: Appearance?.colors.colLayer1Hover ?? "#E5DFED"
     property color colBackgroundToggled: Appearance?.colors.colPrimary ?? "#65558F"
@@ -32,11 +31,11 @@ Button {
     property color colRippleToggled: Appearance?.colors.colPrimaryActive ?? "#D6CEE2"
 
     opacity: root.enabled ? 1 : 0.4
-    property color buttonColor: root.enabled ? (root.toggled ? 
+    property color buttonColor: ColorUtils.transparentize(root.toggled ? 
         (root.hovered ? colBackgroundToggledHover : 
             colBackgroundToggled) :
         (root.hovered ? colBackgroundHover : 
-            colBackground)) : colBackground
+            colBackground), root.enabled ? 0 : 1)
     property color rippleColor: root.toggled ? colRippleToggled : colRipple
 
     function startRipple(x, y) {
@@ -60,11 +59,11 @@ Button {
 
     MouseArea {
         anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
+        cursorShape: root.pointingHandCursor ? Qt.PointingHandCursor : Qt.ArrowCursor
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
         onPressed: (event) => { 
             if(event.button === Qt.RightButton) {
-                if (root.altAction) root.altAction();
+                if (root.altAction) root.altAction(event);
                 return;
             }
             if(event.button === Qt.MiddleButton) {

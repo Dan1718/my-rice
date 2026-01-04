@@ -46,13 +46,24 @@ Singleton {
                     if (!line.trim() || line.trim().startsWith('!'))
                         return false;
 
-                    // Match: key + whitespace + description
-                    const match = line.match(/^\s*(\S+)\s+(.+)$/);
-                    if (match && match[2] === targetDescription) {
-                        root.cachedLayoutCodes[match[2]] = match[1];
-                        root.currentLayoutCode = match[1];
+                    // Match layout: (whitespace + ) key + whitespace + description
+                    const matchLayout = line.match(/^\s*(\S+)\s+(.+)$/);
+                    if (matchLayout && matchLayout[2] === targetDescription) {
+                        root.cachedLayoutCodes[matchLayout[2]] = matchLayout[1];
+                        root.currentLayoutCode = matchLayout[1];
                         return true;
                     }
+
+                    // Match variant: (whitespace + ) variant + whitespace + key + whitespace + description
+                    const matchVariant = line.match(/^\s*(\S+)\s+(\S+)\s+(.+)$/);
+                    if (matchVariant && matchVariant[3] === targetDescription) {
+                        const complexLayout = matchVariant[2] + matchVariant[1];
+                        root.cachedLayoutCodes[matchVariant[3]] = complexLayout;
+                        root.currentLayoutCode = complexLayout;
+                        return true;
+                    }
+                    
+                    return false;
                 });
                 // console.log("[HyprlandXkb] Found line:", foundLine);
                 // console.log("[HyprlandXkb] Layout:", root.currentLayoutName, "| Code:", root.currentLayoutCode);
@@ -74,8 +85,8 @@ Singleton {
                 const hyprlandKeyboard = parsedOutput["keyboards"].find(kb => kb.main === true);
                 root.layoutCodes = hyprlandKeyboard["layout"].split(",");
                 root.currentLayoutName = hyprlandKeyboard["active_keymap"];
-                // console.log("[HyprlandXkb] Fetched | Layouts (multiple: " + (root.layouts.length > 1) + "): "
-                //     + root.layouts.join(", ") + " | Active: " + root.currentLayoutName);
+                // console.log("[HyprlandXkb] Fetched | Layouts (multiple: " + (root.layoutCodes.length > 1) + "): "
+                //     + root.layoutCodes.join(", ") + " | Active: " + root.currentLayoutName);
             }
         }
     }
@@ -95,10 +106,10 @@ Singleton {
 
                 // Update when layout might have changed
                 const dataString = event.data;
-                root.currentLayoutName = dataString.split(",")[1];
+                root.currentLayoutName = dataString.substring(dataString.indexOf(",") + 1);
 
                 // Update layout for on-screen keyboard (osk)
-                Config.options.osk.layout = root.currentLayoutName;
+                Config.options.osk.layout = root.currentLayoutName.split(" (")[0];
             } else if (event.name == "configreloaded") {
                 // Mark layout code list to be updated when config is reloaded
                 root.needsLayoutRefresh = true;

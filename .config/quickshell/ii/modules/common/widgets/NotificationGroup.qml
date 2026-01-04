@@ -1,16 +1,16 @@
-import qs.modules.common
 import qs.services
+import qs.modules.common
 import qs.modules.common.functions
-import "./notification_utils.js" as NotificationUtils
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Services.Notifications
 
 /**
  * A group of notifications from the same app.
  * Similar to Android's notifications
  */
-Item { // Notification group area
+MouseArea { // Notification group area
     id: root
     property var notificationGroup
     property var notifications: notificationGroup?.notifications ?? []
@@ -23,29 +23,42 @@ Item { // Notification group area
 
     property real dragConfirmThreshold: 70 // Drag further to discard notification
     property real dismissOvershoot: 20 // Account for gaps and bouncy animations
-    property var qmlParent: root.parent.parent // There's something between this and the parent ListView
-    property var parentDragIndex: qmlParent.dragIndex
-    property var parentDragDistance: qmlParent.dragDistance
+    property var qmlParent: root?.parent?.parent // There's something between this and the parent ListView
+    property var parentDragIndex: qmlParent?.dragIndex
+    property var parentDragDistance: qmlParent?.dragDistance
     property var dragIndexDiff: Math.abs(parentDragIndex - index)
-    property real xOffset: dragIndexDiff == 0 ? Math.max(0, parentDragDistance) : 
-        parentDragDistance > dragConfirmThreshold ? 0 :
-        dragIndexDiff == 1 ? Math.max(0, parentDragDistance * 0.3) :
-        dragIndexDiff == 2 ? Math.max(0, parentDragDistance * 0.1) : 0
+    property real xOffset: dragIndexDiff == 0 ? parentDragDistance : 
+        Math.abs(parentDragDistance) > dragConfirmThreshold ? 0 :
+        dragIndexDiff == 1 ? (parentDragDistance * 0.3) :
+        dragIndexDiff == 2 ? (parentDragDistance * 0.1) : 0
 
-    function destroyWithAnimation() {
+    function destroyWithAnimation(left = false) {
         root.qmlParent.resetDrag()
         background.anchors.leftMargin = background.anchors.leftMargin; // Break binding
+        destroyAnimation.left = left;
         destroyAnimation.running = true;
+    }
+
+    hoverEnabled: true
+    onContainsMouseChanged: {
+        if (!root.popup) return;
+        if (root.containsMouse) root.notifications.forEach(notif => {
+            Notifications.cancelTimeout(notif.notificationId);
+        });
+        else root.notifications.forEach(notif => {
+            Notifications.timeoutNotification(notif.notificationId);
+        });
     }
 
     SequentialAnimation { // Drag finish animation
         id: destroyAnimation
+        property bool left: true
         running: false
 
         NumberAnimation {
             target: background.anchors
             property: "leftMargin"
-            to: root.width + root.dismissOvershoot
+            to: (root.width + root.dismissOvershoot) * (destroyAnimation.left ? -1 : 1)
             duration: Appearance.animation.elementMove.duration
             easing.type: Appearance.animation.elementMove.type
             easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
@@ -72,10 +85,13 @@ Item { // Notification group area
         automaticallyReset: false
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
 
-        onClicked: (mouse) => {
+        onPressed: {
             if (mouse.button === Qt.RightButton) 
                 root.toggleExpanded();
-            else if (mouse.button === Qt.MiddleButton) 
+        }
+
+        onClicked: (mouse) => {
+            if (mouse.button === Qt.MiddleButton) 
                 root.destroyWithAnimation();
         }
 
@@ -90,8 +106,8 @@ Item { // Notification group area
         }
 
         onDragReleased: (diffX, diffY) => {
-            if (diffX > root.dragConfirmThreshold)
-                root.destroyWithAnimation();
+            if (Math.abs(diffX) > root.dragConfirmThreshold)
+                root.destroyWithAnimation(diffX < 0);
             else 
                 dragManager.resetDrag();
         }
@@ -105,7 +121,7 @@ Item { // Notification group area
         id: background
         anchors.left: parent.left
         width: parent.width
-        color: popup ? ColorUtils.applyAlpha(Appearance.colors.colLayer2, 1 - Appearance.backgroundTransparency) : Appearance.colors.colLayer2
+        color: popup ? Appearance.colors.colBackgroundSurfaceContainer : Appearance.colors.colLayer2
         radius: Appearance.rounding.normal
         anchors.leftMargin: root.xOffset
 
@@ -119,7 +135,7 @@ Item { // Notification group area
         }
         
         clip: true
-        implicitHeight: expanded ? 
+        implicitHeight: root.expanded ? 
             row.implicitHeight + padding * 2 :
             Math.min(80, row.implicitHeight + padding * 2)
 
@@ -140,8 +156,10 @@ Item { // Notification group area
                 Layout.alignment: Qt.AlignTop
                 Layout.fillWidth: false
                 image: root?.multipleNotifications ? "" : notificationGroup?.notifications[0]?.image ?? ""
-                appIcon: notificationGroup?.appIcon
-                summary: notificationGroup?.notifications[root.notificationCount - 1]?.summary
+                appIcon: root.notificationGroup?.appIcon
+                summary: root.notificationGroup?.notifications[root.notificationCount - 1]?.summary
+                urgency: root.notifications.some(n => n.urgency === NotificationUrgency.Critical.toString()) ? 
+                    NotificationUrgency.Critical : NotificationUrgency.Normal
             }
 
             ColumnLayout { // Content
@@ -200,6 +218,11 @@ Item { // Notification group area
                         expanded: root.expanded
                         fontSize: topRow.fontSize
                         onClicked: { root.toggleExpanded() }
+                        altAction: () => { root.toggleExpanded() }
+
+                        StyledToolTip {
+                            text: Translation.tr("Tip: right-clicking a group\nalso expands it")
+                        }
                     }
                 }
 

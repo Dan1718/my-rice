@@ -25,6 +25,7 @@ Singleton {
             "text": action.text,
         })) ?? []
         property bool popup: false
+        property bool isTransient: notification?.hints.transient ?? false
         property string appIcon: notification?.appIcon ?? ""
         property string appName: notification?.appName ?? ""
         property string body: notification?.body ?? ""
@@ -60,15 +61,20 @@ Singleton {
 
     component NotifTimer: Timer {
         required property int notificationId
-        interval: 5000
+        interval: 7000
         running: true
         onTriggered: () => {
-            root.timeoutNotification(notificationId);
+            const index = root.list.findIndex((notif) => notif.notificationId === notificationId);
+            const notifObject = root.list[index];
+            print("[Notifications] Notification timer triggered for ID: " + notificationId + ", transient: " + notifObject?.isTransient);
+            if (notifObject.isTransient) root.discardNotification(notificationId);
+            else root.timeoutNotification(notificationId);
             destroy()
         }
     }
 
     property bool silent: false
+    property int unread: 0
     property var filePath: Directories.notificationsPath
     property list<Notif> list: []
     property var popupList: list.filter((notif) => notif.popup);
@@ -129,8 +135,8 @@ Singleton {
 
     property var groupsByAppName: groupsForList(root.list)
     property var popupGroupsByAppName: groupsForList(root.popupList)
-    property var appNameList: appNameListForGroups(root.groupsByAppName)
-    property var popupAppNameList: appNameListForGroups(root.popupGroupsByAppName)
+    property list<string> appNameList: appNameListForGroups(root.groupsByAppName)
+    property list<string> popupAppNameList: appNameListForGroups(root.popupGroupsByAppName)
 
     // Quickshell's notification IDs starts at 1 on each run, while saved notifications
     // can already contain higher IDs. This is for avoiding id collisions
@@ -168,15 +174,19 @@ Singleton {
                 if (notification.expireTimeout != 0) {
                     newNotifObject.timer = notifTimerComponent.createObject(root, {
                         "notificationId": newNotifObject.notificationId,
-                        "interval": notification.expireTimeout < 0 ? 5000 : notification.expireTimeout,
+                        "interval": notification.expireTimeout < 0 ? (Config?.options.notifications.timeout ?? 7000) : notification.expireTimeout,
                     });
                 }
+                root.unread++;
             }
-
             root.notify(newNotifObject);
             // console.log(notifToString(newNotifObject));
             notifFileView.setText(stringifyList(root.list));
         }
+    }
+
+    function markAllRead() {
+        root.unread = 0;
     }
 
     function discardNotification(id) {
@@ -204,6 +214,12 @@ Singleton {
         root.discardAll();
     }
 
+    function cancelTimeout(id) {
+        const index = root.list.findIndex((notif) => notif.notificationId === id);
+        if (root.list[index] != null)
+            root.list[index].timer.stop();
+    }
+
     function timeoutNotification(id) {
         const index = root.list.findIndex((notif) => notif.notificationId === id);
         if (root.list[index] != null)
@@ -227,7 +243,7 @@ Singleton {
         if (notifServerIndex !== -1) {
             const notifServerNotif = notifServer.trackedNotifications.values[notifServerIndex];
             const action = notifServerNotif.actions.find((action) => action.identifier === notifIdentifier);
-            console.log("Action found: " + JSON.stringify(action));
+            // console.log("Action found: " + JSON.stringify(action));
             action.invoke()
         } 
         else {

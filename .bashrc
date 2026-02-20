@@ -62,3 +62,4 @@ unset __mamba_setup
 export PATH="$PATH:/home/dan/.foundry/bin"
 
 export PATH="$PATH:/home/dan/.foundry/bin"
+export PATH="$PATH:/home/dan/.bun/bin"

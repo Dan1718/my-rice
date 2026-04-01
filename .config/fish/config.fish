@@ -6,6 +6,9 @@ function fish_prompt -d "Write out the prompt"
         (set_color $fish_color_cwd) (prompt_pwd) (set_color normal)
 end
 
+set -gx EDITOR nvim
+set -gx VISUAL nvim
+
 if status is-interactive # Commands to run in interactive sessions can go here
 
     # No greeting
@@ -52,7 +55,7 @@ function dlclean --description "Download URL, strip ?query, save as clean filena
     set -l filename (path basename -- $clean_url)
 
     if test -z "$filename"
-        set filename "download"
+        set filename download
     end
 
     # Download and save with clean filename
@@ -60,3 +63,4 @@ function dlclean --description "Download URL, strip ?query, save as clean filena
 end
 zoxide init fish | source
 alias cd="z"
+alias dlc="dlclean"

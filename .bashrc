@@ -63,3 +63,9 @@ export PATH="$PATH:/home/dan/.foundry/bin"
 
 export PATH="$PATH:/home/dan/.foundry/bin"
 export PATH="$PATH:/home/dan/.bun/bin"
+
+# opencode
+export PATH=/home/dan/.opencode/bin:$PATH
+
+export EDITOR="nvim"
+export VISUAL="nvim"
